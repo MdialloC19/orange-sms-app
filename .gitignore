@@ -1,0 +1,119 @@
+# Environments
+venv/
+env/
+ENV/
+.venv/
+env.bak/
+venv.bak/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Configuration sensible
+.env
+.env.*
+!env.example
+
+# Logs
+*.log
+logs/
+
+# Tests
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.coverage.*.c
+.coverage.xml
+.nox/
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/build/
+frontend/dist/
+
+# Backend
+backend/.venv/
+backend/venv/
+backend/app.db
+backend/app.db-shm
+backend/app.db-wal
+
+# MongoDB
+*.mongodb
+*.mongo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Coverage
+coverage.xml
+.coverage
+.coverage.*
+
+# Cache
+.cache/
+*.pyc
+__pycache__/
+
+# Virtual Environment
+venv/
+env/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local development
+.env.local
+.env.*.local
