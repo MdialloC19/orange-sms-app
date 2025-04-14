@@ -117,3 +117,4 @@ coverage.xml
 # Local development
 .env.local
 .env.*.local
+/docs

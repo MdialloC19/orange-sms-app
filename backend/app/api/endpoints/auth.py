@@ -14,7 +14,27 @@ from app.db.database import get_db
 router = APIRouter()
 
 
-@router.post("/login/access-token", response_model=schemas.Token)
+@router.post(
+    "/login/access-token",
+    response_model=schemas.Token,
+    summary="Obtenir un token d'authentification",
+    description="""
+    Authentifie un utilisateur et retourne un token JWT valide pour les requêtes futures.
+    Ce token doit être inclus dans l'en-tête Authorization des requêtes suivantes.
+    
+    **Requête**:
+    - email: Email de l'utilisateur
+    - password: Mot de passe de l'utilisateur
+    
+    **Réponse**:
+    - access_token: Token JWT
+    - token_type: Type du token (bearer)
+    
+    **Code d'erreur**:
+    - 401: Email ou mot de passe incorrect
+    - 400: Utilisateur inactif
+    """
+)
 async def login_access_token(
     db: AsyncIOMotorDatabase = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()
 ) -> Any:
@@ -45,7 +65,26 @@ async def login_access_token(
     }
 
 
-@router.post("/signup", response_model=schemas.User)
+@router.post(
+    "/signup",
+    response_model=schemas.User,
+    summary="Créer un nouveau compte utilisateur",
+    description="""
+    Crée un nouveau compte utilisateur avec les informations fournies.
+    
+    **Requête**:
+    - email: Email de l'utilisateur (doit être unique)
+    - password: Mot de passe de l'utilisateur
+    
+    **Réponse**:
+    - id: Identifiant unique de l'utilisateur
+    - email: Email de l'utilisateur
+    - is_active: Statut d'activation du compte
+    
+    **Code d'erreur**:
+    - 400: Email déjà utilisé
+    """
+)
 async def create_user(
     *,
     db: AsyncIOMotorDatabase = Depends(get_db),

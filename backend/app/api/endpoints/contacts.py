@@ -12,7 +12,21 @@ from app.db.database import get_db
 router = APIRouter()
 
 
-@router.get("/", response_model=List[schemas.Contact])
+@router.get(
+    "/",
+    response_model=List[schemas.Contact],
+    summary="Lister tous les contacts",
+    description="""
+    Récupère la liste des contacts de l'utilisateur courant, triés par nom.
+    
+    **Paramètres**:
+    - skip: Nombre d'éléments à sauter (pour la pagination)
+    - limit: Nombre maximum d'éléments à retourner (par défaut: 100)
+    
+    **Réponse**:
+    - Liste d'objets Contact avec leurs détails
+    """
+)
 async def read_contacts(
     skip: int = 0,
     limit: int = 100,
@@ -28,7 +42,26 @@ async def read_contacts(
     return contacts
 
 
-@router.post("/", response_model=schemas.Contact)
+@router.post(
+    "/",
+    response_model=schemas.Contact,
+    summary="Créer un nouveau contact",
+    description="""
+    Crée un nouveau contact dans la liste de l'utilisateur.
+    
+    **Requête**:
+    - name: Nom du contact
+    - phone_number: Numéro de téléphone (format international)
+    - email: Email du contact (optionnel)
+    - notes: Notes supplémentaires (optionnel)
+    
+    **Réponse**:
+    - Détails complets du contact créé
+    
+    **Code d'erreur**:
+    - 400: Un contact avec ce numéro existe déjà
+    """
+)
 async def create_contact(
     *,
     db: AsyncIOMotorDatabase = Depends(get_db),
@@ -61,7 +94,23 @@ async def create_contact(
     return db_contact
 
 
-@router.get("/{contact_id}", response_model=schemas.Contact)
+@router.get(
+    "/{contact_id}",
+    response_model=schemas.Contact,
+    summary="Détails d'un contact spécifique",
+    description="""
+    Récupère les détails complets d'un contact spécifique.
+    
+    **Paramètres**:
+    - contact_id: Identifiant unique du contact
+    
+    **Réponse**:
+    - Détails complets du contact
+    
+    **Code d'erreur**:
+    - 404: Contact non trouvé ou ID invalide
+    """
+)
 async def read_contact(
     contact_id: str,
     db: AsyncIOMotorDatabase = Depends(get_db),
@@ -85,7 +134,30 @@ async def read_contact(
         )
 
 
-@router.put("/{contact_id}", response_model=schemas.Contact)
+@router.put(
+    "/{contact_id}",
+    response_model=schemas.Contact,
+    summary="Mettre à jour un contact",
+    description="""
+    Met à jour les informations d'un contact existant.
+    
+    **Paramètres**:
+    - contact_id: Identifiant unique du contact
+    
+    **Requête**:
+    - name: Nouveau nom (optionnel)
+    - phone_number: Nouveau numéro (optionnel)
+    - email: Nouvel email (optionnel)
+    - notes: Nouvelles notes (optionnel)
+    
+    **Réponse**:
+    - Détails mis à jour du contact
+    
+    **Code d'erreur**:
+    - 404: Contact non trouvé
+    - 400: Un contact avec ce numéro existe déjà
+    """
+)
 async def update_contact(
     *,
     db: AsyncIOMotorDatabase = Depends(get_db),
@@ -134,7 +206,23 @@ async def update_contact(
         )
 
 
-@router.delete("/{contact_id}", response_model=schemas.Contact)
+@router.delete(
+    "/{contact_id}",
+    response_model=schemas.Contact,
+    summary="Supprimer un contact",
+    description="""
+    Supprime un contact de la liste de l'utilisateur.
+    
+    **Paramètres**:
+    - contact_id: Identifiant unique du contact
+    
+    **Réponse**:
+    - Détails du contact supprimé
+    
+    **Code d'erreur**:
+    - 404: Contact non trouvé ou ID invalide
+    """
+)
 async def delete_contact(
     contact_id: str,
     db: AsyncIOMotorDatabase = Depends(get_db),

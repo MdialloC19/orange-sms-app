@@ -13,7 +13,31 @@ from app.db.database import get_db
 router = APIRouter()
 
 
-@router.post("/send", response_model=schemas.SMS)
+@router.post(
+    "/send",
+    response_model=schemas.SMS,
+    summary="Envoyer un SMS via Orange",
+    description="""
+    Envoie un SMS via l'API Orange et enregistre l'historique.
+    
+    **Requête**:
+    - recipient_number: Numéro de téléphone du destinataire (format international)
+    - message: Contenu du message SMS
+    - recipient_id: ID du contact dans la base de données (optionnel)
+    
+    **Réponse**:
+    - id: Identifiant unique du SMS
+    - sender_id: ID de l'utilisateur qui a envoyé le SMS
+    - recipient_number: Numéro de téléphone du destinataire
+    - message: Contenu du message
+    - status: Statut actuel du SMS
+    - created_at: Date d'envoi
+    - updated_at: Dernière mise à jour
+    
+    **Code d'erreur**:
+    - 500: Erreur lors de l'envoi du SMS
+    """
+)
 async def send_sms(
     *,
     db: AsyncIOMotorDatabase = Depends(get_db),
@@ -39,7 +63,21 @@ async def send_sms(
         )
 
 
-@router.get("/history", response_model=List[schemas.SMS])
+@router.get(
+    "/history",
+    response_model=List[schemas.SMS],
+    summary="Lister l'historique des SMS",
+    description="""
+    Récupère l'historique des SMS envoyés par l'utilisateur courant.
+    
+    **Paramètres**:
+    - skip: Nombre d'éléments à sauter (pour la pagination)
+    - limit: Nombre maximum d'éléments à retourner (par défaut: 100)
+    
+    **Réponse**:
+    - Liste d'objets SMS avec leurs détails
+    """
+)
 async def get_sms_history(
     skip: int = 0,
     limit: int = 100,
@@ -55,7 +93,23 @@ async def get_sms_history(
     return sms_messages
 
 
-@router.get("/{sms_id}", response_model=schemas.SMS)
+@router.get(
+    "/{sms_id}",
+    response_model=schemas.SMS,
+    summary="Détails d'un SMS spécifique",
+    description="""
+    Récupère les détails complets d'un SMS spécifique.
+    
+    **Paramètres**:
+    - sms_id: Identifiant unique du SMS
+    
+    **Réponse**:
+    - Détails complets du SMS
+    
+    **Code d'erreur**:
+    - 404: SMS non trouvé ou ID invalide
+    """
+)
 async def get_sms(
     sms_id: str,
     db: AsyncIOMotorDatabase = Depends(get_db),
@@ -79,7 +133,25 @@ async def get_sms(
         )
 
 
-@router.get("/{sms_id}/status", response_model=schemas.SMSDeliveryStatus)
+@router.get(
+    "/{sms_id}/status",
+    response_model=schemas.SMSDeliveryStatus,
+    summary="Vérifier le statut d'un SMS",
+    description="""
+    Vérifie le statut de livraison d'un SMS envoyé.
+    
+    **Paramètres**:
+    - sms_id: Identifiant unique du SMS
+    
+    **Réponse**:
+    - status: Statut actuel du SMS
+    - delivery_time: Heure de livraison (si disponible)
+    - error: Message d'erreur (si applicable)
+    
+    **Code d'erreur**:
+    - 404: SMS non trouvé ou ID invalide
+    """
+)
 async def check_sms_status(
     sms_id: str,
     db: AsyncIOMotorDatabase = Depends(get_db),
