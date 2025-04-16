@@ -21,7 +21,7 @@ class UserUpdate(UserBase):
 
 
 class UserInDBBase(UserBase):
-    id: Optional[int] = None
+    id: Optional[str] = None  # ObjectId de MongoDB représenté en str
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
@@ -44,7 +44,7 @@ class Token(BaseModel):
 
 
 class TokenPayload(BaseModel):
-    sub: Optional[int] = None
+    sub: Optional[str] = None  # ID utilisateur représenté en str
 
 
 # Base schemas for Contact
@@ -64,8 +64,8 @@ class ContactUpdate(ContactBase):
 
 
 class ContactInDBBase(ContactBase):
-    id: int
-    owner_id: int
+    id: str  # ObjectId de MongoDB représenté en str
+    owner_id: str  # ID utilisateur représenté en str
     created_at: datetime
     updated_at: datetime
 
@@ -81,7 +81,7 @@ class Contact(ContactInDBBase):
 class SMSBase(BaseModel):
     content: str
     recipient_number: str
-    recipient_id: Optional[int] = None
+    recipient_id: Optional[str] = None  # ID contact représenté en str
 
 
 class SMSCreate(SMSBase):
@@ -94,8 +94,8 @@ class SMSUpdate(SMSBase):
 
 
 class SMSInDBBase(SMSBase):
-    id: int
-    sender_id: int
+    id: str  # ObjectId de MongoDB représenté en str
+    sender_id: str  # ID utilisateur représenté en str
     status: str
     message_id: Optional[str] = None
     created_at: datetime
@@ -113,7 +113,7 @@ class SMS(SMSInDBBase):
 class SMSSend(BaseModel):
     recipient_number: str = Field(..., description="Numéro de téléphone du destinataire")
     message: str = Field(..., description="Contenu du message")
-    recipient_id: Optional[int] = Field(None, description="ID du contact (optionnel)")
+    recipient_id: Optional[str] = Field(None, description="ID du contact (optionnel)")
 
 
 # Schema for SMS Delivery Status
