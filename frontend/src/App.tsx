@@ -1,31 +1,18 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from './features/auth/contexts/AuthContext';
+import { SmsProvider } from './features/sms/contexts/SmsContext';
+import { ContactProvider } from './features/contacts/contexts/ContactContext';
 
 // Import des pages d'authentification
 import LoginPage from './features/auth/pages/LoginPage';
 import SignupPage from './features/auth/pages/SignupPage';
 
-// Page du tableau de bord
-const DashboardPage = () => (
-  <div className="container-app py-8">
-    <h1 className="mb-6 text-2xl font-bold text-gray-900">Tableau de bord</h1>
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      <div className="card bg-orange-50">
-        <h2 className="mb-2 font-semibold text-orange-700">SMS envoyés</h2>
-        <p className="text-3xl font-bold text-orange-600">0</p>
-      </div>
-      <div className="card bg-blue-50">
-        <h2 className="mb-2 font-semibold text-blue-700">Contacts</h2>
-        <p className="text-3xl font-bold text-blue-600">0</p>
-      </div>
-      <div className="card bg-green-50">
-        <h2 className="mb-2 font-semibold text-green-700">Taux de livraison</h2>
-        <p className="text-3xl font-bold text-green-600">0%</p>
-      </div>
-    </div>
-  </div>
-);
+// Import des pages du tableau de bord
+import DashboardPage from './features/dashboard/pages/DashboardPage';
+import SendSmsPage from './features/sms/pages/SendSmsPage';
+import SmsHistoryPage from './features/sms/pages/SmsHistoryPage';
+import ContactsPage from './features/contacts/pages/ContactsPage';
 
 // Composant pour les routes protégées qui nécessitent une authentification
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
@@ -43,7 +30,11 @@ const AppWrapper = () => {
   return (
     <Router>
       <AuthProvider>
-        <AppRoutes />
+        <SmsProvider>
+          <ContactProvider>
+            <AppRoutes />
+          </ContactProvider>
+        </SmsProvider>
       </AuthProvider>
     </Router>
   );
@@ -85,6 +76,21 @@ const AppRoutes = () => {
         <Route path="/dashboard" element={
           <ProtectedRoute>
             <DashboardPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/send-sms" element={
+          <ProtectedRoute>
+            <SendSmsPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/sms-history" element={
+          <ProtectedRoute>
+            <SmsHistoryPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/contacts" element={
+          <ProtectedRoute>
+            <ContactsPage />
           </ProtectedRoute>
         } />
         
