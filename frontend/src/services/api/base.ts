@@ -2,7 +2,7 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { ApiResponse, ErrorResponse, Token } from '../../types/api';
 
 class BaseApiService {
-  private api: AxiosInstance;
+  protected api: AxiosInstance;
   
   constructor() {
     this.api = axios.create({

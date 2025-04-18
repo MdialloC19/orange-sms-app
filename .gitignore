@@ -65,6 +65,9 @@ backend/venv/
 backend/app.db
 backend/app.db-shm
 backend/app.db-wal
+backend/create_test_user.py
+backend/debug_mongodb.py
+
 
 # MongoDB
 *.mongodb

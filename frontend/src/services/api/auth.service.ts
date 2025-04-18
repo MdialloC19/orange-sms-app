@@ -16,9 +16,8 @@ class AuthService extends BaseApiService {
       // Utiliser URLSearchParams pour OAuth2
       const formData = formatLoginData(credentials);
       
-      // Faire la requête directement avec axios pour plus de contrôle sur les en-têtes
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
-      const response = await axios.post(`${apiUrl}/auth/login/access-token`, formData, {
+      // Utiliser l'instance API de la classe de base qui a la bonne URL
+      const response = await this.api.post('/auth/login/access-token', formData, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
@@ -39,17 +38,35 @@ class AuthService extends BaseApiService {
       };
     } catch (error) {
       console.error('Erreur de connexion:', error);
+      
+      let errorMessage = 'Erreur lors de la connexion';
+      
+      // Gestion des erreurs spécifiques de l'API
+      if (axios.isAxiosError(error) && error.response) {
+        // Erreur 401 = Email ou mot de passe incorrect
+        if (error.response.status === 401) {
+          errorMessage = 'Email ou mot de passe incorrect';
+        } else if (error.response.status === 400) {
+          errorMessage = 'Informations de connexion invalides';
+        }
+        
+        // Si le backend renvoie un message d'erreur spécifique
+        if (error.response.data?.detail) {
+          errorMessage = error.response.data.detail;
+        }
+      }
+      
       return {
         success: false,
-        message: error instanceof Error ? error.message : 'Erreur lors de la connexion'
+        message: errorMessage
       };
     }
   }
   
   async signup(userData: UserCreate): Promise<ApiResponse<User>> {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
-      const response = await axios.post(`${apiUrl}/auth/signup`, userData, {
+      // Utiliser l'instance API de la classe de base qui a la bonne URL
+      const response = await this.api.post('/auth/signup', userData, {
         headers: {
           'Content-Type': 'application/json',
         },
