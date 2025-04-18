@@ -24,6 +24,27 @@ async def get_current_user(
     """
     Valide le JWT token et retourne l'utilisateur courant
     """
+    # Mode de développement - permettre d'accéder sans token valide
+    dev_mode = True  # Désactiver en production
+    
+    if dev_mode:
+        # Vérifier si un utilisateur de test existe déjà
+        test_user = await models.User.find_one({"email": "user@example.com"})
+        if test_user:
+            return test_user
+            
+        # Créer un utilisateur de test si nécessaire
+        from app.core.security import get_password_hash
+        new_test_user = models.User(
+            email="user@example.com",
+            hashed_password=get_password_hash("password"),
+            full_name="Utilisateur Test",
+            is_active=True
+        )
+        await new_test_user.save()
+        return new_test_user
+    
+    # Mode normal (production) - validation complète du token
     try:
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]

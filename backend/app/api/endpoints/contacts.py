@@ -8,6 +8,7 @@ from app.api import schemas
 from app.core.deps import get_current_user
 from app.db import models
 from app.db.database import get_db
+from app.utils.phone_validation import validate_senegal_phone
 
 router = APIRouter()
 
@@ -71,11 +72,19 @@ async def create_contact(
     """
     Crée un nouveau contact
     """
+    # Valider et formater le numéro de téléphone sénégalais
+    is_valid, formatted_number = validate_senegal_phone(contact_in.phone_number)
+    if not is_valid:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Format de numéro invalide. Utilisez le format +221 7X XXX XX XX (numéro sénégalais)"
+        )
+    
     # Vérifier si le contact existe déjà (même numéro pour le même utilisateur)
     existing_contact = await models.Contact.find_one(
         {
             "owner_id": str(current_user.id),
-            "phone_number": contact_in.phone_number
+            "phone_number": formatted_number
         }
     )
     if existing_contact:
@@ -84,9 +93,12 @@ async def create_contact(
             detail="Un contact avec ce numéro existe déjà"
         )
     
-    # Créer le nouveau contact
+    # Créer le nouveau contact avec le numéro formaté
+    contact_data = contact_in.dict()
+    contact_data["phone_number"] = formatted_number
+    
     db_contact = models.Contact(
-        **contact_in.dict(),
+        **contact_data,
         owner_id=str(current_user.id)
     )
     await db_contact.save()
@@ -178,10 +190,21 @@ async def update_contact(
         
         # Vérifier si le nouveau numéro existe déjà chez un autre contact
         if contact_in.phone_number and contact_in.phone_number != contact.phone_number:
+            # Valider et formater le numéro de téléphone sénégalais
+            is_valid, formatted_number = validate_senegal_phone(contact_in.phone_number)
+            if not is_valid:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Format de numéro invalide. Utilisez le format +221 7X XXX XX XX (numéro sénégalais)"
+                )
+            
+            # Mettre à jour le numéro avec la version formatée
+            contact_in.phone_number = formatted_number
+            
             existing_contact = await models.Contact.find_one(
                 {
                     "owner_id": str(current_user.id),
-                    "phone_number": contact_in.phone_number,
+                    "phone_number": formatted_number,
                     "_id": {"$ne": PydanticObjectId(contact_id)}
                 }
             )

@@ -41,15 +41,52 @@ async def login_access_token(
     """
     OAuth2 compatible token login, récupère un token d'accès pour les futures requêtes
     """
-    # Recherche de l'utilisateur par email
-    user = await models.User.find_one({"email": form_data.username})
+    # Logs de débogage - Email tenté
+    print(f"Tentative de connexion avec l'email: {form_data.username}")
     
-    if not user or not security.verify_password(form_data.password, user.hashed_password):
+    # SOLUTION ALTERNATIVE: Accès direct à la collection MongoDB au lieu de Beanie
+    users_collection = db.get_collection("users")
+    
+    # Recherche directe dans la collection
+    user_data = await users_collection.find_one({"email": form_data.username})
+    
+    if not user_data:
+        print(f"Aucun utilisateur trouvé avec l'email: {form_data.username}")
+        
+        # Essayer une recherche insensible à la casse (au cas où)
+        print("Tentative de recherche insensible à la casse")
+        user_data = await users_collection.find_one(
+            {"email": {"$regex": f"^{form_data.username}$", "$options": "i"}}
+        )
+        
+        if not user_data:
+            print("Toujours aucun utilisateur trouvé")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Email ou mot de passe incorrect",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    
+    # Si on arrive ici, on a trouvé un utilisateur
+    print(f"Utilisateur trouvé: {user_data['email']}")
+    print(f"Type de mot de passe hashé: {type(user_data['hashed_password'])}")
+    
+    # Vérification du mot de passe avec le hash stocké
+    password_valid = security.verify_password(
+        form_data.password, 
+        user_data['hashed_password']
+    )
+    print(f"Résultat vérification mot de passe: {password_valid}")
+    
+    if not password_valid:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Email ou mot de passe incorrect",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    
+    # Convertir le document MongoDB en instance de User
+    user = models.User.parse_obj(user_data)
     if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
