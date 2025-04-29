@@ -318,5 +318,5 @@ Si tu as des questions ou des problèmes avec ce projet, n'hésite pas à:
 
 ---
 
-**Projet développé par l'équipe Orange SMS Pro Sénégal**
+**Projet développé par MDIALLOC19@**
 
